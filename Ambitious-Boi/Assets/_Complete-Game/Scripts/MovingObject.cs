@@ -37,7 +37,7 @@ namespace Completed
 			Vector2 start = transform.position;
 			 
 			// Calculate end position based on the direction parameters passed in when calling Move.
-			Vector2 end = start + new Vector2 (xDir * 2, yDir);
+			Vector2 end = start + new Vector2 (xDir, yDir);
 			
 			//Disable the boxCollider so that linecast doesn't hit this object's own collider.
 			boxCollider.enabled = false;
@@ -57,7 +57,7 @@ namespace Completed
 				//Return true to say that Move was successful
 				return true;
 			}
-			
+
 			//If something was hit, return false, Move was unsuccesful.
 			return false;
 		}
@@ -99,15 +99,16 @@ namespace Completed
 			
 			//Set canMove to true if Move was successful, false if failed.
 			bool canMove = Move (xDir, yDir, out hit);
-			
-			//Check if nothing was hit by linecast
-			if(hit.transform == null)
-				//If nothing was hit, return and don't execute further code.
-				return;
+
+            //Check if nothing was hit by linecast
+            if (hit.transform == null)
+            {
+                //If nothing was hit, return and don't execute further code.
+                return;
+            }
 			
 			//Get a component reference to the component of type T attached to the object that was hit
 			T hitComponent = hit.transform.GetComponent <T> ();
-			
 			//If canMove is false and hitComponent is not equal to null, meaning MovingObject is blocked and has hit something it can interact with.
 			if(!canMove && hitComponent != null)
 				

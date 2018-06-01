@@ -34,8 +34,10 @@ namespace Completed
 		public GameObject[] floorTiles;									//Array of floor prefabs.
 		public GameObject[] wallTiles;									//Array of wall prefabs.
 		public GameObject[] foodTiles;									//Array of food prefabs.
-		public GameObject[] enemyTiles;									//Array of enemy prefabs.
-		public GameObject[] outerWallTiles;								//Array of outer tile prefabs.
+		public GameObject[] innocentTiles;									//Array of enemy prefabs.
+        public GameObject[] enemyTiles;                                  //Array of enemy prefabs.
+        public GameObject[] outerWallTiles;								//Array of outer tile prefabs.
+        public int randomizer;
 		
 		private Transform boardHolder;									//A variable to store a reference to the transform of our Board object.
 		private List <Vector3> gridPositions = new List <Vector3> ();	//A list of possible locations to place tiles.
@@ -48,13 +50,14 @@ namespace Completed
 			gridPositions.Clear ();
 			
 			//Loop through x axis (columns).
-			for(int x = 1; x < columns-1; x++)
+			for(int x = 0; x < columns; x++)
 			{
 				//Within each column, loop through y axis (rows).
-				for(int y = 1; y < rows-1; y++)
+				for(int y = 0; y < rows; y++)
 				{
-					//At each index add a new Vector3 to our list with the x and y coordinates of that position.
-					gridPositions.Add (new Vector3(x*2.0f, y, 0f));
+					if(!(x == 0 && y == 0))
+                       //At each index add a new Vector3 to our list with the x and y coordinates of that position.
+					   gridPositions.Add (new Vector3(x, y, 0f));
 				}
 			}
 		}
@@ -66,22 +69,23 @@ namespace Completed
 			//Instantiate Board and set boardHolder to its transform.
 			boardHolder = new GameObject ("Board").transform;
 			
+            randomizer = (int)Random.Range(0, 3);
 			//Loop along x axis, starting from -1 (to fill corner) with floor or outerwall edge tiles.
-			for(int x = -3; x < columns + 3; x++)
+			for(int x = -6; x < columns + 6; x++)
 			{
 				//Loop along y axis, starting from -1 to place floor or outerwall tiles.
 				for(int y = -2; y < rows + 3; y++)
 				{
-					//Choose a random tile from our array of floor tile prefabs and prepare to instantiate it.
-					GameObject toInstantiate = floorTiles[0];
+                    //Choose a random tile from our array of floor tile prefabs and prepare to instantiate it.
+                    GameObject toInstantiate = floorTiles[randomizer];
 					
 					//Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
-					if(x <= -1 || x == columns || y <= -1 || y == rows || x == columns + 1 || y == rows + 1 || x == columns + 2 || y == rows + 2)
-						toInstantiate = outerWallTiles [0];
+					if(x <= -1 || y <= -1  || x >= columns|| y >= rows)
+						toInstantiate = outerWallTiles [randomizer];
 					
 					//Instantiate the GameObject instance using the prefab chosen for toInstantiate at the Vector3 corresponding to current grid position in loop, cast it to GameObject.
 					GameObject instance =
-						Instantiate (toInstantiate, new Vector3 (x*2.0f, y, 0f), Quaternion.identity) as GameObject;
+						Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity) as GameObject;
 					
 					//Set the parent of our newly instantiated object instance to boardHolder, this is just organizational to avoid cluttering hierarchy.
 					instance.transform.SetParent (boardHolder);
@@ -118,9 +122,9 @@ namespace Completed
 			{
 				//Choose a position for randomPosition by getting a random position from our list of available Vector3s stored in gridPosition
 				Vector3 randomPosition = RandomPosition();
-				
-				//Choose a random tile from tileArray and assign it to tileChoice
-				GameObject tileChoice = tileArray[0];
+                randomizer = (int)Random.Range(0, 2);
+                //Choose a random tile from tileArray and assign it to tileChoice
+                GameObject tileChoice = tileArray[randomizer];
 				
 				//Instantiate tileChoice at the position returned by RandomPosition with no change in rotation
 				Instantiate(tileChoice, randomPosition, Quaternion.identity);
@@ -144,13 +148,14 @@ namespace Completed
             //LayoutObjectAtRandom (foodTiles, foodCount.minimum, foodCount.maximum);
 
             //Determine number of enemies based on current level number, based on a logarithmic progression
-            int enemyCount = 5;
+            int innocentCount = 5;
 			
 			//Instantiate a random number of enemies based on minimum and maximum, at randomized positions.
-			LayoutObjectAtRandom (enemyTiles, enemyCount, enemyCount);
+			LayoutObjectAtRandom (innocentTiles, innocentCount, innocentCount);
+            LayoutObjectAtRandom(enemyTiles, 1, 1);
 			
 			//Instantiate the exit tile in the upper right hand corner of our game board
-			Instantiate (exit, new Vector3 (columns * 2.0f - 1.5f, rows - 1, 0f), Quaternion.identity);
+			Instantiate (exit, new Vector3 (columns - 1, rows - 1, 0f), Quaternion.identity);
 		}
 	}
 }

@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
+    Ray ray;
+    RaycastHit hit;
+
+    bool mouseOver = false;
+
     public bool walkable = true;
     public bool target = false;
     public bool selectable = false;
@@ -32,6 +37,7 @@ public class Tile : MonoBehaviour
     {
         if (target)
         {
+            GetComponent<Renderer>().material.color = Color.white;
             GetComponent<Renderer>().material.color = Color.green;
         }
         else if (nextMove)
@@ -65,8 +71,8 @@ public class Tile : MonoBehaviour
     {
         Reset();
 
-        CheckTile(Vector3.forward, jumpHeight, target);
-        CheckTile(-Vector3.forward, jumpHeight, target);
+        CheckTile(Vector3.up, jumpHeight, target);
+        CheckTile(-Vector3.up, jumpHeight, target);
         CheckTile(Vector3.right, jumpHeight, target);
         CheckTile(-Vector3.right, jumpHeight, target);
     }

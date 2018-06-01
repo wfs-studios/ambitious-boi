@@ -20,8 +20,7 @@ namespace Completed
 		public AudioClip drinkSound1;				//1 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip drinkSound2;				//2 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip gameOverSound;				//Audio clip to play when player dies.
-		
-		private Animator animator;					//Used to store a reference to the Player's animator component.
+
 		private int food;                           //Used to store player food points total during level.
 #if UNITY_IOS || UNITY_ANDROID || UNITY_WP8 || UNITY_IPHONE
         private Vector2 touchOrigin = -Vector2.one;	//Used to store location of screen touch origin for mobile controls.
@@ -31,8 +30,6 @@ namespace Completed
 		//Start overrides the Start function of MovingObject
 		protected override void Start ()
 		{
-			//Get a component reference to the Player's animator component
-			animator = GetComponent<Animator>();
 			
 			//Get the current food point total stored in GameManager.instance between levels.
 			food = GameManager.instance.playerFoodPoints;
@@ -49,7 +46,7 @@ namespace Completed
 		private void OnDisable ()
 		{
 			//When Player object is disabled, store the current local food total in the GameManager so it can be re-loaded in next level.
-			GameManager.instance.playerFoodPoints = food;
+			//GameManager.instance.playerFoodPoints = food;
 		}
 		
 		
@@ -121,9 +118,6 @@ namespace Completed
 			
 			//Call the DamageWall function of the Wall we are hitting.
 			hitWall.DamageWall (wallDamage);
-			
-			//Set the attack trigger of the player's animation controller in order to play the player's attack animation.
-			animator.SetTrigger ("playerChop");
 		}
 		
 		
@@ -186,10 +180,7 @@ namespace Completed
 		//LoseFood is called when an enemy attacks the player.
 		//It takes a parameter loss which specifies how many points to lose.
 		public void LoseFood (int loss)
-		{
-			//Set the trigger for the player animator to transition to the playerHit animation.
-			animator.SetTrigger ("playerHit");
-			
+		{			
 			//Subtract lost food points from the players total.
 			food -= 0;
 			

@@ -9,10 +9,9 @@ namespace Completed
 		public int playerDamage; 							//The amount of food points to subtract from the player when attacking.
 		public AudioClip attackSound1;						//First of two audio clips to play when attacking the player.
 		public AudioClip attackSound2;						//Second of two audio clips to play when attacking the player.
-		
-		
-		private Animator animator;							//Variable of type Animator to store a reference to the enemy's Animator component.
-		private Transform target;							//Transform to attempt to move toward each turn.
+        public int wallDamage = 1;
+
+        private Transform target;							//Transform to attempt to move toward each turn.
 		private bool skipMove;								//Boolean to determine whether or not enemy should skip a turn or move this turn.
 		
 		
@@ -22,9 +21,6 @@ namespace Completed
 			//Register this enemy with our instance of GameManager by adding it to a list of Enemy objects. 
 			//This allows the GameManager to issue movement commands.
 			GameManager.instance.AddEnemyToList (this);
-			
-			//Get and store a reference to the attached Animator component.
-			animator = GetComponent<Animator> ();
 			
 			//Find the Player GameObject using it's tag and store a reference to its transform component.
 			target = GameObject.FindGameObjectWithTag ("Player").transform;
@@ -37,21 +33,35 @@ namespace Completed
 		//Override the AttemptMove function of MovingObject to include functionality needed for Enemy to skip turns.
 		//See comments in MovingObject for more on how base AttemptMove function works.
 		protected override void AttemptMove <T> (int xDir, int yDir)
-		{
-			//Check if skipMove is true, if so set it to false and skip this turn.
-			if(skipMove)
-			{
-				skipMove = false;
-				return;
-				
-			}
-			
-			//Call the AttemptMove function from MovingObject.
-			base.AttemptMove <T> (xDir, yDir);
-			
-			//Now that Enemy has moved, set skipMove to true to skip next move.
-			skipMove = true;
-		}
+        {
+            //Hit will store whatever our linecast hits when Move is called.
+            RaycastHit2D hit;
+
+            //Set canMove to true if Move was successful, false if failed.
+            bool canMove = Move(xDir, yDir, out hit);
+            //Check if nothing was hit by linecast
+            if (hit.transform == null)
+            {
+                //If nothing was hit, return and don't execute further code.
+                return;
+            }
+            //Get a component reference to the component of type T attached to the object that was hit
+            T hitComponent = hit.transform.GetComponent<T>();
+            Wall ball = null;
+            if (hitComponent == null)
+            {
+                ball = hit.transform.GetComponent<Wall>();
+            }
+            //If canMove is false and hitComponent is not equal to null, meaning MovingObject is blocked and has hit something it can interact with.
+            if (!canMove)
+            {
+                if (hitComponent != null)
+                    OnCantMove(hitComponent);
+
+                if (ball != null)
+                    OnCantMove(ball);
+            }
+        }
 		
 		
 		//MoveEnemy is called by the GameManger each turn to tell each Enemy to try to move towards the player.
@@ -76,23 +86,29 @@ namespace Completed
 			//Call the AttemptMove function and pass in the generic parameter Player, because Enemy is moving and expecting to potentially encounter a Player
 			AttemptMove <Player> (xDir, yDir);
 		}
-		
-		
-		//OnCantMove is called if Enemy attempts to move into a space occupied by a Player, it overrides the OnCantMove function of MovingObject 
-		//and takes a generic parameter T which we use to pass in the component we expect to encounter, in this case Player
-		protected override void OnCantMove <T> (T component)
-		{
-			//Declare hitPlayer and set it to equal the encountered component.
-			Player hitPlayer = component as Player;
-			
-			//Call the LoseFood function of hitPlayer passing it playerDamage, the amount of foodpoints to be subtracted.
-			hitPlayer.LoseFood (playerDamage);
-			
-			//Set the attack trigger of animator to trigger Enemy attack animation.
-			animator.SetTrigger ("enemyAttack");
-			
-			//Call the RandomizeSfx function of SoundManager passing in the two audio clips to choose randomly between.
-			SoundManager.instance.RandomizeSfx (attackSound1, attackSound2);
-		}
-	}
+
+
+        //OnCantMove is called if Enemy attempts to move into a space occupied by a Player, it overrides the OnCantMove function of MovingObject 
+        //and takes a generic parameter T which we use to pass in the component we expect to encounter, in this case Player
+        protected override void OnCantMove<T>(T component)
+        {
+            if (component is Player)
+            {
+                //Declare hitPlayer and set it to equal the encountered component.
+                Player hitPlayer = component as Player;
+            }
+
+            if (component is Wall)
+            {
+                //Set hitWall to equal the component passed in as a parameter.
+                Wall hitWall = component as Wall;
+
+                //Call the DamageWall function of the Wall we are hitting.
+                hitWall.DamageWall(wallDamage);
+            }
+
+            //Call the RandomizeSfx function of SoundManager passing in the two audio clips to choose randomly between.
+            SoundManager.instance.RandomizeSfx(attackSound1, attackSound2);
+        }
+    }
 }
