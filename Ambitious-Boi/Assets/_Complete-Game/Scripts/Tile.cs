@@ -5,7 +5,7 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     Ray ray;
-    RaycastHit hit;
+    RaycastHit2D hit;
 
     bool mouseOver = false;
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.UI;
 
 namespace Completed
 {
@@ -51,9 +52,9 @@ namespace Completed
 			
 			//Get a component reference to the attached BoardManager script
 			boardScript = GetComponent<BoardManager>();
-			
-			//Call the InitGame function to initialize the first level 
-			InitGame();
+
+            //Call the InitGame function to initialize the first level 
+            InitGame();
 		}
 
         //this is called only once, and the paramter tell it to be called only after the scene was loaded
@@ -84,9 +85,10 @@ namespace Completed
 			
 			//Get a reference to our text LevelText's text component by finding it by name and calling GetComponent.
 			levelText = GameObject.Find("LevelText").GetComponent<Text>();
-			
-			//Set the text of levelText to the string "Day" and append the current level number.
-			levelText.text = "Level " + level;
+            
+
+            //Set the text of levelText to the string "Day" and append the current level number.
+            levelText.text = "Level " + level;
 			
 			//Set levelImage to active blocking player's view of the game board during setup.
 			levelImage.SetActive(true);
@@ -119,11 +121,10 @@ namespace Completed
 		{
 			//Check that playersTurn or enemiesMoving or doingSetup are not currently true.
 			if(playersTurn || enemiesMoving || doingSetup)
-				
 				//If any of these are true, return and do not start MoveEnemies.
 				return;
-			
-			//Start moving enemies.
+
+            //Start moving enemies.
 			StartCoroutine (MoveEnemies ());
             StartCoroutine (MoveInnocents());
         }
