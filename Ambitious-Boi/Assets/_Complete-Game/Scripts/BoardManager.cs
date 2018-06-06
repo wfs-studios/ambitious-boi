@@ -28,15 +28,16 @@ namespace Completed
 		
 		public int columns = 10; 										//Number of columns in our game board.
 		public int rows = 10;											//Number of rows in our game board.
-		public Count wallCount = new Count (10, 30);						//Lower and upper limit for our random number of walls per level.
+		public Count wallCount = new Count (10, 30);					//Lower and upper limit for our random number of walls per level.
 		public Count foodCount = new Count (1, 6);						//Lower and upper limit for our random number of food items per level.
 		public GameObject exit;											//Prefab to spawn for exit.
 		public GameObject[] floorTiles;									//Array of floor prefabs.
 		public GameObject[] wallTiles;									//Array of wall prefabs.
 		public GameObject[] foodTiles;									//Array of food prefabs.
-		public GameObject[] innocentTiles;									//Array of enemy prefabs.
-        public GameObject[] enemyTiles;                                  //Array of enemy prefabs.
+		public GameObject[] innocentTiles;								//Array of enemy prefabs.
+        public GameObject[] enemyTiles;                                 //Array of enemy prefabs.
         public GameObject[] outerWallTiles;								//Array of outer tile prefabs.
+        public static List<FloorMap> floorMap = new List<FloorMap>();
         public Sprite[] floorSprites;
         public int randomizer;
 		
@@ -77,23 +78,30 @@ namespace Completed
 				//Loop along y axis, starting from -1 to place floor or outerwall tiles.
 				for(int y = -2; y < rows + 3; y++)
 				{
+                    GameObject toInstantiate = new GameObject();
+
                     floorTiles[0].GetComponent<SpriteRenderer>().sprite = floorSprites[randomizer];
                     //Choose a random tile from our array of floor tile prefabs and prepare to instantiate it.
-                    GameObject toInstantiate = floorTiles[0];
-					
-					//Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
-					if(x <= -1 || y <= -1  || x >= columns|| y >= rows)
-						toInstantiate = outerWallTiles [randomizer];
-					
-					//Instantiate the GameObject instance using the prefab chosen for toInstantiate at the Vector3 corresponding to current grid position in loop, cast it to GameObject.
-					GameObject instance =
+
+
+                    //Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
+                    if (x <= -1 || y <= -1 || x >= columns || y >= rows)
+                        toInstantiate = outerWallTiles[randomizer];
+                    else
+                    {
+                        toInstantiate = floorTiles[0];
+                        floorMap.Add(new FloorMap(x, y, 0f, toInstantiate));
+                    }
+
+                    //Instantiate the GameObject instance using the prefab chosen for toInstantiate at the Vector3 corresponding to current grid position in loop, cast it to GameObject.
+                    GameObject instance =
 						Instantiate (toInstantiate, new Vector3 (x, y, 0f), Quaternion.identity) as GameObject;
 					
 					//Set the parent of our newly instantiated object instance to boardHolder, this is just organizational to avoid cluttering hierarchy.
 					instance.transform.SetParent (boardHolder);
 				}
 			}
-		}
+        }
 		
 		
 		//RandomPosition returns a random position from our list gridPositions.

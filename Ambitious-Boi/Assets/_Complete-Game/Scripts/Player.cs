@@ -19,7 +19,7 @@ namespace Completed
 		public AudioClip drinkSound2;				//2 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip gameOverSound;				//Audio clip to play when player dies.
         public Text aiText;
-        public int turn = 1;
+        public static int turn = 1;
 
 
         //Start overrides the Start function of MovingObject
@@ -37,7 +37,7 @@ namespace Completed
 
             //Call the Start function of the MovingObject base class.
             base.Start ();
-		}
+        }
 		
 		
 		//This function is called when the behaviour becomes disabled or inactive.
