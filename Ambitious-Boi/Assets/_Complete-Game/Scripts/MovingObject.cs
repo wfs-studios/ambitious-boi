@@ -1,22 +1,28 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace Completed
 {
 	//The abstract keyword enables you to create classes and class members that are incomplete and must be implemented in a derived class.
 	public abstract class MovingObject : MonoBehaviour
 	{
-		public float moveTime = 0.1f;			//Time it will take object to move, in seconds.
+        public GameObject[] floor;
+        Stack<Tile> path = new Stack<Tile>();
+        Tile currentTile;
+
+
+        public float moveTime = 0.1f;			//Time it will take object to move, in seconds.
 		public LayerMask blockingLayer;			//Layer on which collision will be checked.
 		
 		
-		private BoxCollider2D boxCollider; 		//The BoxCollider2D component attached to this object.
-		private Rigidbody2D rb2D;				//The Rigidbody2D component attached to this object.
-		private float inverseMoveTime;			//Used to make movement more efficient.
-		
-		
-		//Protected, virtual functions can be overridden by inheriting classes.
-		protected virtual void Start ()
+		public BoxCollider2D boxCollider; 		//The BoxCollider2D component attached to this object.
+		public Rigidbody2D rb2D;				//The Rigidbody2D component attached to this object.
+		public float inverseMoveTime;			//Used to make movement more efficient.
+
+
+        //Protected, virtual functions can be overridden by inheriting classes.
+        protected virtual void Start ()
 		{
 			//Get a component reference to this object's BoxCollider2D
 			boxCollider = GetComponent <BoxCollider2D> ();
@@ -37,7 +43,7 @@ namespace Completed
 			Vector2 start = transform.position;
 			 
 			// Calculate end position based on the direction parameters passed in when calling Move.
-			Vector2 end = start + new Vector2 (xDir * 2, yDir);
+			Vector2 end = start + new Vector2 (xDir, yDir);
 			
 			//Disable the boxCollider so that linecast doesn't hit this object's own collider.
 			boxCollider.enabled = false;
@@ -57,7 +63,7 @@ namespace Completed
 				//Return true to say that Move was successful
 				return true;
 			}
-			
+
 			//If something was hit, return false, Move was unsuccesful.
 			return false;
 		}
@@ -66,19 +72,23 @@ namespace Completed
 		//Co-routine for moving units from one space to next, takes a parameter end to specify where to move to.
 		protected IEnumerator SmoothMovement (Vector3 end)
 		{
-            
 			//Calculate the remaining distance to move based on the square magnitude of the difference between current position and end parameter. 
 			//Square magnitude is used instead of magnitude because it's computationally cheaper.
 			float sqrRemainingDistance = (transform.position - end).sqrMagnitude;
-			
-			//While that distance is greater than a very small amount (Epsilon, almost zero):
-			while(sqrRemainingDistance > float.Epsilon)
+            //While that distance is greater than a very small amount (Epsilon, almost zero):
+            while (sqrRemainingDistance > float.Epsilon)
 			{
 				//Find a new position proportionally closer to the end, based on the moveTime
-				Vector3 newPostion = Vector3.MoveTowards(rb2D.position, end, inverseMoveTime * Time.deltaTime);
-				
+				Vector3 newPosition = Vector3.MoveTowards(rb2D.position, end, inverseMoveTime * Time.deltaTime);
+                for (int x = 0; x < 400; x++)
+                {
+                    if (newPosition.x == BoardManager.floorMap[x].x && newPosition.y == BoardManager.floorMap[x].y && (Player.turn % 2 == 1))
+                    {
+                        break;
+                    }
+                }
 				//Call MovePosition on attached Rigidbody2D and move it to the calculated position.
-				rb2D.MovePosition (newPostion);
+				rb2D.MovePosition (newPosition);
 				
 				//Recalculate the remaining distance after moving.
 				sqrRemainingDistance = (transform.position - end).sqrMagnitude;
@@ -99,15 +109,16 @@ namespace Completed
 			
 			//Set canMove to true if Move was successful, false if failed.
 			bool canMove = Move (xDir, yDir, out hit);
-			
-			//Check if nothing was hit by linecast
-			if(hit.transform == null)
-				//If nothing was hit, return and don't execute further code.
-				return;
+
+            //Check if nothing was hit by linecast
+            if (hit.transform == null)
+            {
+                //If nothing was hit, return and don't execute further code.
+                return;
+            }
 			
 			//Get a component reference to the component of type T attached to the object that was hit
 			T hitComponent = hit.transform.GetComponent <T> ();
-			
 			//If canMove is false and hitComponent is not equal to null, meaning MovingObject is blocked and has hit something it can interact with.
 			if(!canMove && hitComponent != null)
 				

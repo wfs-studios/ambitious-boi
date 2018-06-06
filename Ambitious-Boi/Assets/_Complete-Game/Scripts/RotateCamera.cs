@@ -9,15 +9,12 @@ public class RotateCamera : MonoBehaviour {
 
         if (Input.GetKey(KeyCode.E))
         {
-            float currentRotation = 90;
-            Camera.main.transform.eulerAngles = new Vector3(0, 0, currentRotation);
-            //transform.Rotate(Vector3.forward, currentRotation);
+            transform.Rotate(Vector3.forward, 90);
         }
 
         if (Input.GetKey(KeyCode.Q))
         {
-            float currentRotation = -90;
-            transform.eulerAngles = new Vector3(0, 0, currentRotation);
+            transform.Rotate(Vector3.forward, -90);
         }
     }
 }

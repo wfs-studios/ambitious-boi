@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.UI;
 
 namespace Completed
 {
@@ -47,12 +48,13 @@ namespace Completed
 			
 			//Assign enemies to a new List of Enemy objects.
 			enemies = new List<Enemy>();
+            innocents = new List<InnocentAI>();
 			
 			//Get a component reference to the attached BoardManager script
 			boardScript = GetComponent<BoardManager>();
-			
-			//Call the InitGame function to initialize the first level 
-			InitGame();
+
+            //Call the InitGame function to initialize the first level 
+            InitGame();
 		}
 
         //this is called only once, and the paramter tell it to be called only after the scene was loaded
@@ -83,9 +85,10 @@ namespace Completed
 			
 			//Get a reference to our text LevelText's text component by finding it by name and calling GetComponent.
 			levelText = GameObject.Find("LevelText").GetComponent<Text>();
-			
-			//Set the text of levelText to the string "Day" and append the current level number.
-			levelText.text = "Level " + level;
+            
+
+            //Set the text of levelText to the string "Day" and append the current level number.
+            levelText.text = "Level " + level;
 			
 			//Set levelImage to active blocking player's view of the game board during setup.
 			levelImage.SetActive(true);
@@ -95,6 +98,7 @@ namespace Completed
 			
 			//Clear any Enemy objects in our List to prepare for next level.
 			enemies.Clear();
+            innocents.Clear();
 			
 			//Call the SetupScene function of the BoardManager script, pass it current level number.
 			boardScript.SetupScene(level);
@@ -117,13 +121,13 @@ namespace Completed
 		{
 			//Check that playersTurn or enemiesMoving or doingSetup are not currently true.
 			if(playersTurn || enemiesMoving || doingSetup)
-				
 				//If any of these are true, return and do not start MoveEnemies.
 				return;
-			
-			//Start moving enemies.
+
+            //Start moving enemies.
 			StartCoroutine (MoveEnemies ());
-		}
+            StartCoroutine (MoveInnocents());
+        }
 		
 		//Call this to add the passed in Enemy to the List of Enemy objects.
 		public void AddEnemyToList(Enemy script)
@@ -178,11 +182,43 @@ namespace Completed
 				yield return new WaitForSeconds(enemies[i].moveTime);
 			}
 			//Once Enemies are done moving, set playersTurn to true so player can move.
-			playersTurn = true;
+			//playersTurn = true;
 			
 			//Enemies are done moving, set enemiesMoving to false.
-			enemiesMoving = false;
+			//enemiesMoving = false;
 		}
-	}
+
+        //Coroutine to move enemies in sequence.
+        IEnumerator MoveInnocents()
+        {
+            //While enemiesMoving is true player is unable to move.
+            //enemiesMoving = true;
+
+            //Wait for turnDelay seconds, defaults to .1 (100 ms).
+            yield return new WaitForSeconds(turnDelay);
+
+            //If there are no enemies spawned (IE in first level):
+            if (innocents.Count == 0)
+            {
+                //Wait for turnDelay seconds between moves, replaces delay caused by enemies moving when there are none.
+                yield return new WaitForSeconds(turnDelay);
+            }
+
+            //Loop through List of Enemy objects.
+            for (int i = 0; i < innocents.Count; i++)
+            {
+                //Call the MoveEnemy function of Enemy at index i in the enemies List.
+                innocents[i].MoveInnocent();
+
+                //Wait for Enemy's moveTime before moving next Enemy, 
+                yield return new WaitForSeconds(innocents[i].moveTime);
+            }
+            //Once Enemies are done moving, set playersTurn to true so player can move.
+            playersTurn = true;
+
+            //Enemies are done moving, set enemiesMoving to false.
+            enemiesMoving = false;
+        }
+    }
 }
 
