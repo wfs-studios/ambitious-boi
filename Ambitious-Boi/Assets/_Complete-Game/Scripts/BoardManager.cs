@@ -37,6 +37,7 @@ namespace Completed
 		public GameObject[] innocentTiles;									//Array of enemy prefabs.
         public GameObject[] enemyTiles;                                  //Array of enemy prefabs.
         public GameObject[] outerWallTiles;								//Array of outer tile prefabs.
+        public Sprite[] floorSprites;
         public int randomizer;
 		
 		private Transform boardHolder;									//A variable to store a reference to the transform of our Board object.
@@ -76,8 +77,9 @@ namespace Completed
 				//Loop along y axis, starting from -1 to place floor or outerwall tiles.
 				for(int y = -2; y < rows + 3; y++)
 				{
+                    floorTiles[0].GetComponent<SpriteRenderer>().sprite = floorSprites[randomizer];
                     //Choose a random tile from our array of floor tile prefabs and prepare to instantiate it.
-                    GameObject toInstantiate = floorTiles[randomizer];
+                    GameObject toInstantiate = floorTiles[0];
 					
 					//Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
 					if(x <= -1 || y <= -1  || x >= columns|| y >= rows)

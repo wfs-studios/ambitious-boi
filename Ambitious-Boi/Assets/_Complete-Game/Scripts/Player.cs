@@ -19,6 +19,7 @@ namespace Completed
 		public AudioClip drinkSound2;				//2 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip gameOverSound;				//Audio clip to play when player dies.
         public Text aiText;
+        public int turn = 1;
 
 
         //Start overrides the Start function of MovingObject
@@ -54,11 +55,8 @@ namespace Completed
             aiText.text = "";
             int horizontal = 0;  	//Used to store the horizontal move direction.
 			int vertical = 0;		//Used to store the vertical move direction.
-			
-			//Check if we are running either in the Unity editor or in a standalone build.
-#if UNITY_STANDALONE || UNITY_WEBPLAYER
-			
-			//Get input from the input manager, round it to an integer and store in horizontal to set x axis move direction
+            
+            //Get input from the input manager, round it to an integer and store in horizontal to set x axis move direction
 			horizontal = (int) (Input.GetAxisRaw ("Horizontal"));
 			
 			//Get input from the input manager, round it to an integer and store in vertical to set y axis move direction
@@ -69,8 +67,6 @@ namespace Completed
 			{
 				vertical = 0;
 			}
-
-#endif //End of mobile platform dependendent compilation section started above with #elif
 			//Check if we have a non-zero value for horizontal or vertical
 			if(horizontal != 0 || vertical != 0)
 			{

@@ -13,6 +13,7 @@ namespace Completed
 
         private Transform target;							//Transform to attempt to move toward each turn.
 		private bool skipMove;								//Boolean to determine whether or not enemy should skip a turn or move this turn.
+
 		
 		
 		//Start overrides the virtual Start function of the base class.
@@ -36,15 +37,17 @@ namespace Completed
         {
             //Hit will store whatever our linecast hits when Move is called.
             RaycastHit2D hit;
+            RaycastHit2D LOS;
 
             //Set canMove to true if Move was successful, false if failed.
-            bool canMove = Move(xDir, yDir, out hit);
+            bool canMove = Movement(xDir, yDir, out hit, out LOS);
             //Check if nothing was hit by linecast
             if (hit.transform == null)
             {
                 //If nothing was hit, return and don't execute further code.
                 return;
             }
+            Debug.Log(LOS.collider.name);
             //Get a component reference to the component of type T attached to the object that was hit
             T hitComponent = hit.transform.GetComponent<T>();
             Wall ball = null;
@@ -62,10 +65,43 @@ namespace Completed
                     OnCantMove(ball);
             }
         }
-		
-		
-		//MoveEnemy is called by the GameManger each turn to tell each Enemy to try to move towards the player.
-		public void MoveEnemy ()
+
+        protected bool Movement(int xDir, int yDir, out RaycastHit2D hit, out RaycastHit2D LOS)
+        {
+            //Store start position to move from, based on objects current transform position.
+            Vector2 start = transform.position;
+
+            // Calculate end position based on the direction parameters passed in when calling Move.
+            Vector2 end = start + new Vector2(xDir, yDir);
+            Vector2 sight = start + new Vector2(xDir + 4, yDir + 4);
+
+            //Disable the boxCollider so that linecast doesn't hit this object's own collider.
+            boxCollider.enabled = false;
+
+            //Cast a line from start point to end point checking collision on blockingLayer.
+            hit = Physics2D.Linecast(start, end, blockingLayer);
+            LOS = Physics2D.Linecast(start, sight, blockingLayer);
+
+            //Re-enable boxCollider after linecast
+            boxCollider.enabled = true;
+
+            //Check if anything was hit
+            if (hit.transform == null)
+            {
+                //If nothing was hit, start SmoothMovement co-routine passing in the Vector2 end as destination
+                StartCoroutine(SmoothMovement(end));
+
+                //Return true to say that Move was successful
+                return true;
+            }
+
+            //If something was hit, return false, Move was unsuccesful.
+            return false;
+        }
+
+
+        //MoveEnemy is called by the GameManger each turn to tell each Enemy to try to move towards the player.
+        public void MoveEnemy ()
 		{
 			//Declare variables for X and Y axis move directions, these range from -1 to 1.
 			//These values allow us to choose between the cardinal directions: up, down, left and right.
