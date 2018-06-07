@@ -158,7 +158,7 @@ namespace Completed
             //LayoutObjectAtRandom (foodTiles, foodCount.minimum, foodCount.maximum);
 
             //Determine number of enemies based on current level number, based on a logarithmic progression
-            int innocentCount = 30;
+            int innocentCount = 25;
 			
 			//Instantiate a random number of enemies based on minimum and maximum, at randomized positions.
 			LayoutObjectAtRandom (innocentTiles, innocentCount, innocentCount);
