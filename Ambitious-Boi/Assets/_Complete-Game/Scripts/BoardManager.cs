@@ -31,7 +31,7 @@ namespace Completed
 		public Count wallCount = new Count (10, 30);					//Lower and upper limit for our random number of walls per level.
 		public Count foodCount = new Count (1, 6);						//Lower and upper limit for our random number of food items per level.
 		public GameObject exit;											//Prefab to spawn for exit.
-		public GameObject[] floorTiles;									//Array of floor prefabs.
+		public GameObject floorTile;									//floor prefab.
 		public GameObject[] wallTiles;									//Array of wall prefabs.
 		public GameObject[] foodTiles;									//Array of food prefabs.
 		public GameObject[] innocentTiles;								//Array of enemy prefabs.
@@ -80,7 +80,7 @@ namespace Completed
 				{
                     GameObject toInstantiate = new GameObject();
 
-                    floorTiles[0].GetComponent<SpriteRenderer>().sprite = floorSprites[randomizer];
+                    floorTile.GetComponent<SpriteRenderer>().sprite = floorSprites[randomizer];
                     //Choose a random tile from our array of floor tile prefabs and prepare to instantiate it.
 
 
@@ -89,7 +89,7 @@ namespace Completed
                         toInstantiate = outerWallTiles[randomizer];
                     else
                     {
-                        toInstantiate = floorTiles[0];
+                        toInstantiate = floorTile;
                         floorMap.Add(new FloorMap(x, y, 0f, toInstantiate));
                     }
 
